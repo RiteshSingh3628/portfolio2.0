@@ -15,6 +15,7 @@ function App() {
     setLoading(false);
   };
 
+function App() {
   return (
     <>
       {loading && <Loader onLoadComplete={handleLoadComplete} />}
