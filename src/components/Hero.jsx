@@ -1,136 +1,154 @@
-import React, { useEffect } from 'react';
-import { gsap } from 'gsap';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import anime from 'animejs';
+import { FiGithub, FiLinkedin, FiMail, FiArrowDown } from 'react-icons/fi';
+import '../styles/Hero.css';
 
 const Hero = () => {
+  const heroRef = useRef(null);
+  const titleRef = useRef(null);
+  const subtitleRef = useRef(null);
+  const descRef = useRef(null);
+  const ctaRef = useRef(null);
+  const socialRef = useRef(null);
+  const arrowRef = useRef(null);
+
   useEffect(() => {
-    const tl = gsap.timeline();
-    tl.from('.hero-title', { y: 50, opacity: 0, duration: 1, ease: 'power2.out' })
-      .from('.hero-subtitle', { y: 30, opacity: 0, duration: 0.8, ease: 'power2.out' }, '-=0.5')
-      .from('.hero-description', { y: 20, opacity: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-      .from('.hero-button', { scale: 0, duration: 0.5, ease: 'back.out(1.7)' }, '-=0.2');
+    const tl = gsap.timeline({ delay: 3.5 });
+
+    // Animate title with split text effect
+    tl.from(titleRef.current.children, {
+      y: 100,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.1,
+      ease: 'power4.out'
+    });
+
+    // Animate subtitle
+    tl.from(subtitleRef.current, {
+      x: -50,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power3.out'
+    }, '-=0.4');
+
+    // Animate description
+    tl.from(descRef.current, {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      ease: 'power2.out'
+    }, '-=0.5');
+
+    // Animate CTA buttons
+    tl.from(ctaRef.current.children, {
+      scale: 0,
+      opacity: 0,
+      duration: 0.5,
+      stagger: 0.2,
+      ease: 'back.out(1.7)'
+    }, '-=0.3');
+
+    // Animate social icons
+    tl.from(socialRef.current.children, {
+      y: 20,
+      opacity: 0,
+      duration: 0.5,
+      stagger: 0.1,
+      ease: 'power2.out'
+    }, '-=0.5');
+
+    // Animate arrow
+    gsap.to(arrowRef.current, {
+      y: 10,
+      duration: 1,
+      repeat: -1,
+      yoyo: true,
+      ease: 'power1.inOut',
+      delay: 4.5
+    });
+
+    // Floating background elements
+    anime({
+      targets: '.floating-element',
+      translateY: [
+        { value: -20, duration: 2000 },
+        { value: 20, duration: 2000 }
+      ],
+      translateX: [
+        { value: -10, duration: 2000 },
+        { value: 10, duration: 2000 }
+      ],
+      opacity: [
+        { value: 0.3, duration: 2000 },
+        { value: 0.6, duration: 2000 }
+      ],
+      delay: anime.stagger(200),
+      loop: true,
+      easing: 'easeInOutSine'
+    });
+
   }, []);
 
-  const scrollToAbout = () => {
-    const element = document.getElementById('about');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+  const scrollToProjects = () => {
+    document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToContact = () => {
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section id="hero" className="hero">
+    <section id="home" className="hero" ref={heroRef}>
+      <div className="hero-background">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="floating-element"></div>
+        ))}
+      </div>
+
       <div className="hero-content">
-        <h1 className="hero-title">Hi, I'm a Full-Stack Developer</h1>
-        <h2 className="hero-subtitle">Creating Digital Experiences</h2>
-        <p className="hero-description">
-          Passionate about building scalable web applications and beautiful user interfaces.
-          Specialized in React, Node.js, and modern web technologies.
+        <h1 ref={titleRef} className="hero-title">
+          <span>Full-Stack</span>
+          <span>Developer</span>
+        </h1>
+
+        <div ref={subtitleRef} className="hero-subtitle">
+          <span className="code-bracket">{'{ '}</span>
+          Building Digital Experiences
+          <span className="code-bracket">{' }'}</span>
+        </div>
+
+        <p ref={descRef} className="hero-description">
+          Crafting elegant solutions with modern technologies.
+          Specialized in React, Node.js, and everything in between.
         </p>
-        <button className="hero-button" onClick={scrollToAbout}>Explore My Work</button>
+
+        <div ref={ctaRef} className="hero-cta">
+          <button className="btn btn-primary" onClick={scrollToProjects}>
+            View Projects
+          </button>
+          <button className="btn btn-secondary" onClick={scrollToContact}>
+            Get In Touch
+          </button>
+        </div>
+
+        <div ref={socialRef} className="hero-social">
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="social-link">
+            <FiGithub />
+          </a>
+          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-link">
+            <FiLinkedin />
+          </a>
+          <a href="mailto:contact@example.com" className="social-link">
+            <FiMail />
+          </a>
+        </div>
+
+        <div ref={arrowRef} className="scroll-indicator">
+          <FiArrowDown />
+        </div>
       </div>
-      <div className="hero-bg">
-        <div className="hero-shape shape-1"></div>
-        <div className="hero-shape shape-2"></div>
-        <div className="hero-shape shape-3"></div>
-      </div>
-      <style jsx>{`
-        .hero {
-          height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: relative;
-          overflow: hidden;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-        }
-        .hero-content {
-          text-align: center;
-          z-index: 2;
-          max-width: 800px;
-          padding: 0 2rem;
-        }
-        .hero-title {
-          font-size: 3.5rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
-        }
-        .hero-subtitle {
-          font-size: 2rem;
-          margin-bottom: 1.5rem;
-          opacity: 0.9;
-        }
-        .hero-description {
-          font-size: 1.2rem;
-          line-height: 1.6;
-          margin-bottom: 2rem;
-          opacity: 0.8;
-        }
-        .hero-button {
-          background: white;
-          color: #667eea;
-          border: none;
-          padding: 1rem 2rem;
-          font-size: 1.1rem;
-          font-weight: bold;
-          border-radius: 50px;
-          cursor: pointer;
-          transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .hero-button:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-        .hero-bg {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-        }
-        .hero-shape {
-          position: absolute;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.1);
-        }
-        .shape-1 {
-          width: 300px;
-          height: 300px;
-          top: 10%;
-          left: 10%;
-          animation: float 6s ease-in-out infinite;
-        }
-        .shape-2 {
-          width: 200px;
-          height: 200px;
-          top: 60%;
-          right: 10%;
-          animation: float 8s ease-in-out infinite reverse;
-        }
-        .shape-3 {
-          width: 150px;
-          height: 150px;
-          bottom: 20%;
-          left: 50%;
-          animation: float 7s ease-in-out infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        @media (max-width: 768px) {
-          .hero-title {
-            font-size: 2.5rem;
-          }
-          .hero-subtitle {
-            font-size: 1.5rem;
-          }
-          .hero-description {
-            font-size: 1rem;
-          }
-        }
-      `}</style>
     </section>
   );
 };

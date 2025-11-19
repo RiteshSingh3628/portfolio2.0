@@ -1,27 +1,35 @@
-import React, { Suspense, lazy } from 'react';
-import Loading from './components/Loading';
+import { useState } from 'react';
+import Loader from './components/Loader';
 import Navigation from './components/Navigation';
+import Hero from './components/Hero';
+import About from './components/About';
+import Skills from './components/Skills';
+import Projects from './components/Projects';
+import Contact from './components/Contact';
 import './App.css';
 
-// Lazy load components for better performance
-const Hero = lazy(() => import('./components/Hero'));
-const About = lazy(() => import('./components/About'));
-const Skills = lazy(() => import('./components/Skills'));
-const Projects = lazy(() => import('./components/Projects'));
-const Contact = lazy(() => import('./components/Contact'));
+function App() {
+  const [loading, setLoading] = useState(true);
+
+  const handleLoadComplete = () => {
+    setLoading(false);
+  };
 
 function App() {
   return (
-    <div className="App">
-      <Navigation />
-      <Suspense fallback={<Loading />}>
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Contact />
-      </Suspense>
-    </div>
+    <>
+      {loading && <Loader onLoadComplete={handleLoadComplete} />}
+      {!loading && (
+        <>
+          <Navigation />
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <Contact />
+        </>
+      )}
+    </>
   );
 }
 

@@ -1,150 +1,157 @@
-import React, { useEffect, useRef } from 'react';
-import { gsap } from 'gsap';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import anime from 'animejs';
+import { FiCode, FiServer, FiDatabase, FiLayout } from 'react-icons/fi';
+import '../styles/About.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const About = () => {
-  const aboutRef = useRef(null);
+  const sectionRef = useRef(null);
+  const titleRef = useRef(null);
+  const contentRef = useRef(null);
+  const cardsRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from('.about-content', {
+      // Animate title
+      gsap.from(titleRef.current, {
         scrollTrigger: {
-          trigger: aboutRef.current,
+          trigger: sectionRef.current,
           start: 'top 80%',
-          end: 'bottom 20%',
-          toggleActions: 'play none none reverse'
         },
         y: 50,
         opacity: 0,
         duration: 1,
-        ease: 'power2.out'
+        ease: 'power3.out'
       });
 
-      gsap.from('.about-image', {
+      // Animate content
+      gsap.from(contentRef.current, {
         scrollTrigger: {
-          trigger: aboutRef.current,
-          start: 'top 80%',
-          end: 'bottom 20%',
-          toggleActions: 'play none none reverse'
+          trigger: contentRef.current,
+          start: 'top 85%',
         },
-        scale: 0.8,
+        x: -50,
         opacity: 0,
         duration: 1,
-        ease: 'power2.out'
+        ease: 'power3.out'
       });
-    }, aboutRef);
+
+      // Animate cards
+      gsap.from('.about-card', {
+        scrollTrigger: {
+          trigger: cardsRef.current,
+          start: 'top 85%',
+        },
+        y: 60,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: 'power3.out'
+      });
+
+      // Animate stats
+      const stats = document.querySelectorAll('.stat-number');
+      stats.forEach(stat => {
+        const target = parseInt(stat.getAttribute('data-target'));
+
+        ScrollTrigger.create({
+          trigger: stat,
+          start: 'top 90%',
+          onEnter: () => {
+            anime({
+              targets: stat,
+              innerHTML: [0, target],
+              duration: 2000,
+              round: 1,
+              easing: 'easeOutExpo'
+            });
+          }
+        });
+      });
+
+    }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
+  const cards = [
+    {
+      icon: <FiCode />,
+      title: 'Frontend Development',
+      description: 'Creating responsive and interactive user interfaces with React, Vue, and modern CSS frameworks.'
+    },
+    {
+      icon: <FiServer />,
+      title: 'Backend Development',
+      description: 'Building scalable server-side applications with Node.js, Express, and RESTful APIs.'
+    },
+    {
+      icon: <FiDatabase />,
+      title: 'Database Management',
+      description: 'Designing and optimizing databases with MongoDB, PostgreSQL, and MySQL.'
+    },
+    {
+      icon: <FiLayout />,
+      title: 'UI/UX Design',
+      description: 'Crafting intuitive user experiences with attention to detail and modern design principles.'
+    }
+  ];
+
+  const stats = [
+    { number: 50, label: 'Projects Completed' },
+    { number: 5, label: 'Years Experience' },
+    { number: 30, label: 'Happy Clients' },
+    { number: 100, label: 'Cups of Coffee' }
+  ];
+
   return (
-    <section id="about" ref={aboutRef} className="about">
-      <div className="container">
-        <div className="about-content">
-          <h2>About Me</h2>
-          <p>
-            I'm a passionate full-stack developer with over 5 years of experience
-            building web applications. I love creating clean, efficient, and
-            user-friendly solutions using modern technologies.
-          </p>
-          <p>
-            My expertise spans across frontend frameworks like React and Vue.js,
-            backend technologies including Node.js and Python, and databases
-            such as MongoDB and PostgreSQL.
-          </p>
+    <section id="about" className="about" ref={sectionRef}>
+      <div className="about-container">
+        <h2 ref={titleRef} className="section-title">
+          <span className="title-number">01.</span> About Me
+        </h2>
+
+        <div ref={contentRef} className="about-content">
+          <div className="about-text">
+            <p>
+              Hello! I'm a passionate full-stack developer who loves building things for the web.
+              My journey in web development started several years ago, and I've been fortunate to work
+              on a diverse range of projects.
+            </p>
+            <p>
+              I specialize in creating exceptional digital experiences that are not only functional
+              but also beautiful and user-friendly. My focus is on writing clean, efficient code
+              and staying up-to-date with the latest technologies and best practices.
+            </p>
+            <p>
+              When I'm not coding, you can find me exploring new technologies, contributing to
+              open-source projects, or sharing my knowledge with the developer community.
+            </p>
+          </div>
+
           <div className="about-stats">
-            <div className="stat">
-              <h3>50+</h3>
-              <p>Projects Completed</p>
-            </div>
-            <div className="stat">
-              <h3>5+</h3>
-              <p>Years Experience</p>
-            </div>
-            <div className="stat">
-              <h3>20+</h3>
-              <p>Happy Clients</p>
-            </div>
+            {stats.map((stat, index) => (
+              <div key={index} className="stat-item">
+                <div className="stat-number" data-target={stat.number}>0</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="about-image">
-          <div className="image-placeholder">
-            <span>Profile Image</span>
-          </div>
+
+        <div ref={cardsRef} className="about-cards">
+          {cards.map((card, index) => (
+            <div key={index} className="about-card">
+              <div className="card-icon">{card.icon}</div>
+              <h3 className="card-title">{card.title}</h3>
+              <p className="card-description">{card.description}</p>
+            </div>
+          ))}
         </div>
       </div>
-      <style jsx>{`
-        .about {
-          padding: 5rem 0;
-          background: #f8f9fa;
-        }
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 2rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-          align-items: center;
-        }
-        .about-content h2 {
-          font-size: 2.5rem;
-          margin-bottom: 2rem;
-          color: #333;
-        }
-        .about-content p {
-          font-size: 1.1rem;
-          line-height: 1.6;
-          margin-bottom: 1.5rem;
-          color: #666;
-        }
-        .about-stats {
-          display: flex;
-          gap: 2rem;
-          margin-top: 2rem;
-        }
-        .stat {
-          text-align: center;
-        }
-        .stat h3 {
-          font-size: 2rem;
-          color: #667eea;
-          margin-bottom: 0.5rem;
-        }
-        .stat p {
-          color: #666;
-          font-size: 0.9rem;
-        }
-        .about-image {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-        .image-placeholder {
-          width: 300px;
-          height: 300px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 50%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: white;
-          font-size: 1.2rem;
-          font-weight: bold;
-        }
-        @media (max-width: 768px) {
-          .container {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-          }
-          .about-stats {
-            flex-direction: column;
-            gap: 1rem;
-          }
-        }
-      `}</style>
     </section>
   );
 };

@@ -1,12 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import anime from 'animejs';
+import { FiMail, FiMapPin, FiPhone, FiSend } from 'react-icons/fi';
+import '../styles/Contact.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Contact = () => {
-  const contactRef = useRef(null);
+  const sectionRef = useRef(null);
+  const titleRef = useRef(null);
+  const formRef = useRef(null);
+  const infoRef = useRef(null);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,231 +20,173 @@ const Contact = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from('.contact-title', {
+      // Animate title
+      gsap.from(titleRef.current, {
         scrollTrigger: {
-          trigger: contactRef.current,
+          trigger: sectionRef.current,
           start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power2.out'
-      });
-
-      gsap.from('.contact-form', {
-        scrollTrigger: {
-          trigger: contactRef.current,
-          start: 'top 70%',
-          toggleActions: 'play none none reverse'
         },
         y: 50,
         opacity: 0,
-        duration: 0.8,
-        ease: 'power2.out'
+        duration: 1,
+        ease: 'power3.out'
       });
 
-      gsap.from('.contact-info', {
+      // Animate contact info
+      gsap.from('.contact-info-item', {
         scrollTrigger: {
-          trigger: contactRef.current,
-          start: 'top 70%',
-          toggleActions: 'play none none reverse'
+          trigger: infoRef.current,
+          start: 'top 85%',
+        },
+        x: -50,
+        opacity: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: 'power3.out'
+      });
+
+      // Animate form
+      gsap.from(formRef.current, {
+        scrollTrigger: {
+          trigger: formRef.current,
+          start: 'top 85%',
         },
         x: 50,
         opacity: 0,
-        duration: 0.8,
-        ease: 'power2.out'
+        duration: 1,
+        ease: 'power3.out'
       });
-    }, contactRef);
+
+    }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Animate form submission
-    anime({
-      targets: '.contact-form',
-      scale: [1, 0.98, 1],
-      duration: 300,
-      easing: 'easeInOutQuad'
-    });
-
-    // Here you would typically send the form data to a server
+    // Handle form submission
     console.log('Form submitted:', formData);
-
     // Reset form
     setFormData({ name: '', email: '', message: '' });
   };
 
+  const contactInfo = [
+    {
+      icon: <FiMail />,
+      title: 'Email',
+      content: 'contact@example.com',
+      link: 'mailto:contact@example.com'
+    },
+    {
+      icon: <FiPhone />,
+      title: 'Phone',
+      content: '+1 (555) 123-4567',
+      link: 'tel:+15551234567'
+    },
+    {
+      icon: <FiMapPin />,
+      title: 'Location',
+      content: 'San Francisco, CA',
+      link: null
+    }
+  ];
+
   return (
-    <section id="contact" ref={contactRef} className="contact">
-      <div className="container">
-        <h2 className="contact-title">Get In Touch</h2>
+    <section id="contact" className="contact" ref={sectionRef}>
+      <div className="contact-container">
+        <h2 ref={titleRef} className="section-title">
+          <span className="title-number">04.</span> Get In Touch
+        </h2>
+
         <div className="contact-content">
-          <div className="contact-form">
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your Name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Your Email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <textarea
-                  name="message"
-                  placeholder="Your Message"
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  rows="5"
-                  required
-                ></textarea>
-              </div>
-              <button type="submit" className="submit-btn">Send Message</button>
-            </form>
-          </div>
-          <div className="contact-info">
-            <div className="info-item">
-              <h3>Email</h3>
-              <p>hello@example.com</p>
-            </div>
-            <div className="info-item">
-              <h3>Phone</h3>
-              <p>+1 (555) 123-4567</p>
-            </div>
-            <div className="info-item">
-              <h3>Location</h3>
-              <p>San Francisco, CA</p>
-            </div>
-            <div className="social-links">
-              <a href="#" className="social-link">LinkedIn</a>
-              <a href="#" className="social-link">GitHub</a>
-              <a href="#" className="social-link">Twitter</a>
+          <div ref={infoRef} className="contact-info">
+            <h3 className="contact-subtitle">Let's Work Together</h3>
+            <p className="contact-text">
+              I'm always open to discussing new projects, creative ideas, or opportunities
+              to be part of your vision. Feel free to reach out!
+            </p>
+
+            <div className="contact-info-list">
+              {contactInfo.map((item, index) => (
+                <div key={index} className="contact-info-item">
+                  <div className="info-icon">{item.icon}</div>
+                  <div className="info-content">
+                    <h4 className="info-title">{item.title}</h4>
+                    {item.link ? (
+                      <a href={item.link} className="info-link">{item.content}</a>
+                    ) : (
+                      <p className="info-text">{item.content}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+
+          <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="form-input"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                placeholder="Your Name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                className="form-input"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="your.email@example.com"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="message" className="form-label">Message</label>
+              <textarea
+                id="message"
+                name="message"
+                className="form-textarea"
+                value={formData.message}
+                onChange={handleChange}
+                required
+                placeholder="Your message here..."
+                rows="6"
+              />
+            </div>
+
+            <button type="submit" className="form-submit">
+              <span>Send Message</span>
+              <FiSend />
+            </button>
+          </form>
         </div>
       </div>
-      <style jsx>{`
-        .contact {
-          padding: 5rem 0;
-          background: #f8f9fa;
-        }
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 2rem;
-        }
-        .contact-title {
-          font-size: 2.5rem;
-          text-align: center;
-          margin-bottom: 3rem;
-          color: #333;
-        }
-        .contact-content {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-          align-items: start;
-        }
-        .contact-form {
-          background: white;
-          padding: 2rem;
-          border-radius: 10px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        .form-group {
-          margin-bottom: 1.5rem;
-        }
-        .form-group input,
-        .form-group textarea {
-          width: 100%;
-          padding: 1rem;
-          border: 2px solid #e9ecef;
-          border-radius: 5px;
-          font-size: 1rem;
-          transition: border-color 0.3s;
-        }
-        .form-group input:focus,
-        .form-group textarea:focus {
-          outline: none;
-          border-color: #667eea;
-        }
-        .submit-btn {
-          width: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          color: white;
-          border: none;
-          padding: 1rem;
-          font-size: 1.1rem;
-          font-weight: bold;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: transform 0.3s;
-        }
-        .submit-btn:hover {
-          transform: translateY(-2px);
-        }
-        .contact-info {
-          background: white;
-          padding: 2rem;
-          border-radius: 10px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        .info-item {
-          margin-bottom: 2rem;
-        }
-        .info-item h3 {
-          font-size: 1.2rem;
-          color: #333;
-          margin-bottom: 0.5rem;
-        }
-        .info-item p {
-          color: #666;
-        }
-        .social-links {
-          display: flex;
-          gap: 1rem;
-          margin-top: 2rem;
-        }
-        .social-link {
-          color: #667eea;
-          text-decoration: none;
-          font-weight: bold;
-          transition: color 0.3s;
-        }
-        .social-link:hover {
-          color: #764ba2;
-        }
-        @media (max-width: 768px) {
-          .contact-content {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-          }
-        }
-      `}</style>
+
+      <footer className="footer">
+        <p className="footer-text">
+          Designed & Built by <span className="highlight">Your Name</span>
+        </p>
+        <p className="footer-year">© {new Date().getFullYear()} All rights reserved.</p>
+      </footer>
     </section>
   );
 };

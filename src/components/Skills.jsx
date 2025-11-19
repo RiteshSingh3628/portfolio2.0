@@ -1,118 +1,169 @@
-import React, { useEffect, useRef } from 'react';
-import anime from 'animejs';
-import { gsap } from 'gsap';
+import { useEffect, useRef } from 'react';
+import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import anime from 'animejs';
+import '../styles/Skills.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const Skills = () => {
+  const sectionRef = useRef(null);
+  const titleRef = useRef(null);
   const skillsRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.from('.skills-title', {
+      // Animate title
+      gsap.from(titleRef.current, {
         scrollTrigger: {
-          trigger: skillsRef.current,
+          trigger: sectionRef.current,
           start: 'top 80%',
-          toggleActions: 'play none none reverse'
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.8,
-        ease: 'power2.out'
-      });
-
-      gsap.from('.skill-category', {
-        scrollTrigger: {
-          trigger: skillsRef.current,
-          start: 'top 70%',
-          toggleActions: 'play none none reverse'
         },
         y: 50,
         opacity: 0,
+        duration: 1,
+        ease: 'power3.out'
+      });
+
+      // Animate skill categories
+      gsap.from('.skill-category', {
+        scrollTrigger: {
+          trigger: skillsRef.current,
+          start: 'top 85%',
+        },
+        y: 80,
+        opacity: 0,
         duration: 0.8,
-        stagger: 0.2,
-        ease: 'power2.out'
+        stagger: 0.15,
+        ease: 'power3.out'
       });
-    }, skillsRef);
 
-    // Animate skill bars on scroll
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const bars = entry.target.querySelectorAll('.skill-bar-fill');
-          bars.forEach((bar, index) => {
-            anime({
-              targets: bar,
-              width: bar.dataset.width,
-              duration: 1500,
-              delay: index * 200,
-              easing: 'easeOutExpo'
+      // Animate skill bars
+      const skillBars = document.querySelectorAll('.skill-progress');
+      skillBars.forEach((bar) => {
+        const progress = bar.getAttribute('data-progress');
+
+        ScrollTrigger.create({
+          trigger: bar,
+          start: 'top 90%',
+          onEnter: () => {
+            gsap.to(bar, {
+              width: `${progress}%`,
+              duration: 1.5,
+              ease: 'power2.out'
             });
-          });
-        }
+
+            // Animate percentage text
+            const percentText = bar.nextElementSibling;
+            if (percentText) {
+              anime({
+                targets: percentText,
+                innerHTML: [0, progress],
+                duration: 1500,
+                round: 1,
+                easing: 'easeOutExpo',
+                update: function(anim) {
+                  percentText.innerHTML = Math.round(anim.animations[0].currentValue) + '%';
+                }
+              });
+            }
+          }
+        });
       });
-    });
 
-    if (skillsRef.current) {
-      observer.observe(skillsRef.current);
-    }
+      // Animate tech icons
+      anime({
+        targets: '.tech-icon',
+        scale: [
+          { value: 1, duration: 1000 },
+          { value: 1.1, duration: 500 },
+          { value: 1, duration: 500 }
+        ],
+        delay: anime.stagger(100),
+        loop: true,
+        easing: 'easeInOutQuad'
+      });
 
-    return () => {
-      ctx.revert();
-      observer.disconnect();
-    };
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   const skillCategories = [
     {
-      title: 'Frontend',
+      name: 'Frontend',
       skills: [
-        { name: 'React', level: 90 },
-        { name: 'JavaScript', level: 85 },
-        { name: 'HTML/CSS', level: 95 },
-        { name: 'TypeScript', level: 80 }
+        { name: 'React / Next.js', level: 95 },
+        { name: 'JavaScript / TypeScript', level: 90 },
+        { name: 'HTML / CSS / SASS', level: 95 },
+        { name: 'Tailwind / Material-UI', level: 85 }
       ]
     },
     {
-      title: 'Backend',
+      name: 'Backend',
       skills: [
-        { name: 'Node.js', level: 85 },
-        { name: 'Python', level: 80 },
-        { name: 'Express', level: 85 },
-        { name: 'MongoDB', level: 75 }
+        { name: 'Node.js / Express', level: 90 },
+        { name: 'Python / Django', level: 80 },
+        { name: 'RESTful APIs', level: 90 },
+        { name: 'GraphQL', level: 75 }
       ]
     },
     {
-      title: 'Tools & Technologies',
+      name: 'Database',
       skills: [
-        { name: 'Git', level: 90 },
-        { name: 'Docker', level: 70 },
-        { name: 'AWS', level: 75 },
-        { name: 'Linux', level: 80 }
+        { name: 'MongoDB', level: 85 },
+        { name: 'PostgreSQL / MySQL', level: 80 },
+        { name: 'Redis', level: 75 },
+        { name: 'Firebase', level: 85 }
+      ]
+    },
+    {
+      name: 'Tools & Others',
+      skills: [
+        { name: 'Git / GitHub', level: 90 },
+        { name: 'Docker / Kubernetes', level: 75 },
+        { name: 'AWS / Cloud Services', level: 80 },
+        { name: 'CI/CD', level: 75 }
       ]
     }
   ];
 
+  const technologies = [
+    'React', 'Node.js', 'MongoDB', 'Express', 'Next.js',
+    'TypeScript', 'PostgreSQL', 'Docker', 'AWS', 'Git',
+    'Python', 'GraphQL', 'Redis', 'Tailwind', 'SASS'
+  ];
+
   return (
-    <section id="skills" ref={skillsRef} className="skills">
-      <div className="container">
-        <h2 className="skills-title">Skills & Expertise</h2>
-        <div className="skills-grid">
+    <section id="skills" className="skills" ref={sectionRef}>
+      <div className="skills-container">
+        <h2 ref={titleRef} className="section-title">
+          <span className="title-number">02.</span> Skills & Technologies
+        </h2>
+
+        <div className="tech-cloud">
+          {technologies.map((tech, index) => (
+            <span key={index} className="tech-icon" style={{ animationDelay: `${index * 0.1}s` }}>
+              {tech}
+            </span>
+          ))}
+        </div>
+
+        <div ref={skillsRef} className="skills-grid">
           {skillCategories.map((category, categoryIndex) => (
             <div key={categoryIndex} className="skill-category">
-              <h3>{category.title}</h3>
+              <h3 className="category-title">{category.name}</h3>
               <div className="skills-list">
                 {category.skills.map((skill, skillIndex) => (
                   <div key={skillIndex} className="skill-item">
-                    <div className="skill-info">
+                    <div className="skill-header">
                       <span className="skill-name">{skill.name}</span>
-                      <span className="skill-percentage">{skill.level}%</span>
+                      <span className="skill-percent">0%</span>
                     </div>
                     <div className="skill-bar">
                       <div
-                        className="skill-bar-fill"
-                        data-width={`${skill.level}%`}
+                        className="skill-progress"
+                        data-progress={skill.level}
                         style={{ width: '0%' }}
                       ></div>
                     </div>
@@ -123,80 +174,6 @@ const Skills = () => {
           ))}
         </div>
       </div>
-      <style jsx>{`
-        .skills {
-          padding: 5rem 0;
-          background: white;
-        }
-        .container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 2rem;
-        }
-        .skills-title {
-          font-size: 2.5rem;
-          text-align: center;
-          margin-bottom: 3rem;
-          color: #333;
-        }
-        .skills-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-          gap: 3rem;
-        }
-        .skill-category {
-          background: #f8f9fa;
-          padding: 2rem;
-          border-radius: 10px;
-          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .skill-category h3 {
-          font-size: 1.5rem;
-          margin-bottom: 1.5rem;
-          color: #333;
-          text-align: center;
-        }
-        .skills-list {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
-        }
-        .skill-item {
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .skill-info {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .skill-name {
-          font-weight: 500;
-          color: #333;
-        }
-        .skill-percentage {
-          color: #667eea;
-          font-weight: bold;
-        }
-        .skill-bar {
-          height: 8px;
-          background: #e9ecef;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-        .skill-bar-fill {
-          height: 100%;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 4px;
-          transition: width 1.5s ease-out;
-        }
-        @media (max-width: 768px) {
-          .skills-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
     </section>
   );
 };

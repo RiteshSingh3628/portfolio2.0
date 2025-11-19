@@ -1,13 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import anime from 'animejs';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { FiMenu, FiX } from 'react-icons/fi';
+import '../styles/Navigation.css';
 
 const Navigation = () => {
+  const navRef = useRef(null);
+  const menuRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    // Animate nav on mount
+    gsap.from(navRef.current, {
+      y: -100,
+      opacity: 0,
+      duration: 1,
+      ease: 'power3.out',
+      delay: 3
+    });
+
+    // Scroll effect
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setScrolled(window.scrollY > 50);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -16,203 +30,79 @@ const Navigation = () => {
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-
     if (!isOpen) {
-      anime({
-        targets: '.nav-menu',
-        translateX: [300, 0],
-        duration: 500,
-        easing: 'easeOutExpo'
-      });
-      anime({
-        targets: '.hamburger-line:nth-child(1)',
-        rotate: 45,
-        translateY: 8,
-        duration: 300
-      });
-      anime({
-        targets: '.hamburger-line:nth-child(2)',
-        opacity: 0,
-        duration: 300
-      });
-      anime({
-        targets: '.hamburger-line:nth-child(3)',
-        rotate: -45,
-        translateY: -8,
-        duration: 300
+      gsap.to(menuRef.current, {
+        x: 0,
+        duration: 0.5,
+        ease: 'power3.out'
       });
     } else {
-      anime({
-        targets: '.nav-menu',
-        translateX: [0, 300],
-        duration: 500,
-        easing: 'easeOutExpo'
-      });
-      anime({
-        targets: '.hamburger-line',
-        rotate: 0,
-        translateY: 0,
-        opacity: 1,
-        duration: 300
+      gsap.to(menuRef.current, {
+        x: '100%',
+        duration: 0.5,
+        ease: 'power3.in'
       });
     }
   };
 
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
+      if (isOpen) toggleMenu();
     }
-    setIsOpen(false);
   };
 
-  const navItems = [
-    { name: 'Home', id: 'hero' },
-    { name: 'About', id: 'about' },
-    { name: 'Projects', id: 'projects' },
-    { name: 'Contact', id: 'contact' }
-  ];
+  const menuItems = ['home', 'about', 'skills', 'projects', 'contact'];
 
   return (
-    <nav className={`navigation ${isScrolled ? 'scrolled' : ''}`}>
-      <div className="nav-container">
-        <div className="nav-logo">
-          <span>Portfolio</span>
+    <>
+      <nav ref={navRef} className={`navigation ${scrolled ? 'scrolled' : ''}`}>
+        <div className="nav-container">
+          <div className="logo">
+            <span className="logo-bracket">{'<'}</span>
+            <span className="logo-text">Portfolio</span>
+            <span className="logo-bracket">{'/>'}</span>
+          </div>
+
+          <ul className="nav-menu desktop">
+            {menuItems.map((item, index) => (
+              <li key={item}>
+                <button
+                  onClick={() => scrollToSection(item)}
+                  className="nav-link"
+                  style={{ animationDelay: `${3 + index * 0.1}s` }}
+                >
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <button className="menu-toggle" onClick={toggleMenu}>
+            {isOpen ? <FiX /> : <FiMenu />}
+          </button>
         </div>
-        <div className="nav-desktop">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              className="nav-link"
-              onClick={() => scrollToSection(item.id)}
+      </nav>
+
+      <div ref={menuRef} className="mobile-menu">
+        <ul>
+          {menuItems.map((item, index) => (
+            <li
+              key={item}
+              style={{
+                animationDelay: `${index * 0.1}s`,
+                animation: isOpen ? `slideIn 0.5s forwards ${index * 0.1}s` : 'none'
+              }}
             >
-              {item.name}
-            </button>
+              <button onClick={() => scrollToSection(item)} className="mobile-link">
+                {item.charAt(0).toUpperCase() + item.slice(1)}
+              </button>
+            </li>
           ))}
-        </div>
-        <div className="nav-mobile">
-          <button className="hamburger" onClick={toggleMenu}>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
-        </div>
+        </ul>
       </div>
-      <div className={`nav-menu ${isOpen ? 'open' : ''}`}>
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            className="nav-menu-item"
-            onClick={() => scrollToSection(item.id)}
-          >
-            {item.name}
-          </button>
-        ))}
-      </div>
-      <style jsx>{`
-        .navigation {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          z-index: 1000;
-          transition: background 0.3s, box-shadow 0.3s;
-          background: rgba(255, 255, 255, 0.9);
-          backdrop-filter: blur(10px);
-        }
-        .navigation.scrolled {
-          background: rgba(255, 255, 255, 0.95);
-          box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-        }
-        .nav-container {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 2rem;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          height: 70px;
-        }
-        .nav-logo {
-          font-size: 1.5rem;
-          font-weight: bold;
-          color: #333;
-        }
-        .nav-desktop {
-          display: flex;
-          gap: 2rem;
-        }
-        .nav-link {
-          background: none;
-          border: none;
-          font-size: 1rem;
-          color: #333;
-          cursor: pointer;
-          padding: 0.5rem 1rem;
-          border-radius: 5px;
-          transition: background 0.3s, color 0.3s;
-        }
-        .nav-link:hover {
-          background: #667eea;
-          color: white;
-        }
-        .nav-mobile {
-          display: none;
-        }
-        .hamburger {
-          background: none;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-        .hamburger-line {
-          width: 25px;
-          height: 3px;
-          background: #333;
-          transition: all 0.3s;
-        }
-        .nav-menu {
-          position: fixed;
-          top: 70px;
-          right: 0;
-          width: 300px;
-          height: calc(100vh - 70px);
-          background: white;
-          transform: translateX(300px);
-          display: flex;
-          flex-direction: column;
-          padding: 2rem;
-          box-shadow: -2px 0 20px rgba(0, 0, 0, 0.1);
-        }
-        .nav-menu.open {
-          transform: translateX(0);
-        }
-        .nav-menu-item {
-          background: none;
-          border: none;
-          font-size: 1.2rem;
-          color: #333;
-          cursor: pointer;
-          padding: 1rem 0;
-          text-align: left;
-          border-bottom: 1px solid #eee;
-          transition: color 0.3s;
-        }
-        .nav-menu-item:hover {
-          color: #667eea;
-        }
-        @media (max-width: 768px) {
-          .nav-desktop {
-            display: none;
-          }
-          .nav-mobile {
-            display: block;
-          }
-        }
-      `}</style>
-    </nav>
+    </>
   );
 };
 
